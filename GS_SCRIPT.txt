@@ -1,0 +1,61 @@
+/*
+ * Created on Mon Jun 14 14:37:50 2021
+ * 
+ * @author: Raj Mehta
+ * 
+ * This code write in Google Sheet (Tool -> code)
+ * 
+ */
+
+
+function doGet(e)
+{
+  Logger.log( JSON.stringify(e) );  // view parameters
+  var result = 'Ok'; // assume success
+  if (e.parameter == 'undefined') 
+  {
+    result = 'No Parameters';
+  }
+  else {
+    var sheet_id = '1kHCxJP6iMMv0leOcKV39GSToCn-oPktY5cVqN9ZuqL4';     // Spreadsheet ID
+    var sheet = SpreadsheetApp.openById(sheet_id).getActiveSheet();   // get Active sheet
+    var newRow = sheet.getLastRow() + 1;            
+    var rowData = [];
+    rowData[0] = new Date('February 17, 2018 13:00:00 -0500');//new Date();                 // Timestamp in column A
+    for (var param in e.parameter) 
+    {
+      Logger.log('In for loop, param=' + param);
+      var value = stripQuotes(e.parameter[param]);
+      Logger.log(param + ':' + e.parameter[param]);
+      switch (param)
+      {
+        case 'TableNo': //Parameter
+          rowData[1] = value; //Value in column TableNo
+          result = "Written on column TableNo";
+          break;
+        case 'Request': //Parameter
+          rowData[2] = value; //Value in column Request
+          result += " Written on column Request";
+          break;
+        case 'BatteryStatus': //Parameter
+          rowData[3] = value; //Value in column BatteryStatus
+          result += " Written on column BatteryStatus";
+          break;
+        default:
+          result = "unsupported parameter";
+      }
+    }
+    Logger.log(JSON.stringify(rowData));
+    // Write new row below
+    var newRange = sheet.getRange(newRow, 1, 1, rowData.length);
+    newRange.setValues([rowData]);
+  }
+  // Return result of operation
+  return ContentService.createTextOutput(result);
+}
+/**
+* Remove leading and trailing single or double quotes
+*/
+function stripQuotes( value ) {
+  return value.replace(/^["']|['"]$/g,"");
+}
